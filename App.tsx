@@ -5,11 +5,15 @@ import BibleScreen from './screens/BibleScreen';
 import SongsScreen from './screens/SongsScreen';
 import TestimoniesScreen from './screens/TestimoniesScreen';
 import OfferingsScreen from './screens/OfferingsScreen';
-import type { Screen } from './types';
+import BookReader from './components/BookReader';
+import type { Screen, AppBook } from './types';
+
 
 const App: React.FC = () => {
   const [activeScreen, setActiveScreen] = useState<Screen>('Home');
   const [bibleNav, setBibleNav] = useState<{ bookName: string; chapterIndex: number } | null>(null);
+  const [readingBook, setReadingBook] = useState<AppBook | null>(null);
+
 
   const navigateToChapter = (bookName: string, chapterIndex: number) => {
     setBibleNav({ bookName, chapterIndex });
@@ -19,7 +23,7 @@ const App: React.FC = () => {
   const renderScreen = () => {
     switch (activeScreen) {
       case 'Home':
-        return <HomeScreen navigateToChapter={navigateToChapter} />;
+        return <HomeScreen navigateToChapter={navigateToChapter} onBookSelect={setReadingBook} />;
       case 'Bible':
         return <BibleScreen initialLocation={bibleNav} clearInitialLocation={() => setBibleNav(null)} />;
       case 'Songs':
@@ -29,7 +33,7 @@ const App: React.FC = () => {
       case 'Offerings':
         return <OfferingsScreen />;
       default:
-        return <HomeScreen navigateToChapter={navigateToChapter} />;
+        return <HomeScreen navigateToChapter={navigateToChapter} onBookSelect={setReadingBook} />;
     }
   };
 
@@ -39,6 +43,7 @@ const App: React.FC = () => {
         {renderScreen()}
       </main>
       <BottomNav activeScreen={activeScreen} setActiveScreen={setActiveScreen} />
+      {readingBook && <BookReader book={readingBook} onClose={() => setReadingBook(null)} />}
     </div>
   );
 };

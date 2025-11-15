@@ -19,6 +19,7 @@ export interface AppBook {
   id: number;
   title: string;
   author: string;
+  content: string[];
 }
 
 // FIX: Added missing Article interface used in MoreScreen.tsx
