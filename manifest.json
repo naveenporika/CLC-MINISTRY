@@ -4,6 +4,7 @@
   "description": "The official app for CLC Ministry (Christ Love Comfort), featuring the teachings of Brother Amos Agafe, a complete Telugu Bible, songs, testimonies, and more.",
   "start_url": ".",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f1f5f9",
   "theme_color": "#ffffff",
   "icons": [

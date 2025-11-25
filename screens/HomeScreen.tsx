@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getRandomVerse } from '../services/geminiService'; // geminiService is now bibleService
-import { ChevronRightIcon, PlayIcon } from '../components/icons';
+import { ChevronRightIcon, PlayIcon, DownloadIcon } from '../components/icons';
 import type { AppBook, DailyVerse } from '../types';
 
 const books: AppBook[] = [
@@ -54,15 +54,41 @@ interface HomeScreenProps {
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigateToChapter, onBookSelect }) => {
   const [verse, setVerse] = useState<DailyVerse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  // This state simulates the live status. In a real app, this would be fetched from a server.
   const [isLive, setIsLive] = useState<boolean>(true);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
     setLoading(true);
     const fetchedVerse = getRandomVerse();
     setVerse(fetchedVerse);
     setLoading(false);
+
+    // Install prompt listener
+    const handleBeforeInstallPrompt = (e: Event) => {
+        // Prevent the mini-infobar from appearing on mobile
+        e.preventDefault();
+        // Stash the event so it can be triggered later.
+        setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    }
   }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    // Show the install prompt
+    deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    // We've used the prompt, and can't use it again, throw it away
+    if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+    }
+  };
 
   return (
     <div className="min-h-full bg-slate-100">
@@ -79,6 +105,29 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigateToChapter, onBookSelect
       </header>
 
       <div className="p-4 space-y-6 pb-20">
+        {/* Install Banner */}
+        {deferredPrompt && (
+          <section>
+            <button
+                onClick={handleInstallClick}
+                className="w-full bg-slate-800 text-white rounded-xl shadow-md p-4 flex items-center justify-between hover:bg-slate-700 transition-all duration-200 active:scale-[0.98]"
+            >
+                <div className="flex items-center space-x-4">
+                    <div className="bg-slate-700 p-2 rounded-lg">
+                        <DownloadIcon className="w-6 h-6 text-sky-400" />
+                    </div>
+                    <div className="text-left">
+                        <h3 className="font-bold text-sm font-telugu">యాప్‌ని ఇన్‌స్టాల్ చేయండి</h3>
+                        <p className="text-xs text-slate-300">ఆఫ్‌లైన్ యాక్సెస్ కోసం</p>
+                    </div>
+                </div>
+                <div className="bg-sky-600 text-white text-xs font-bold px-3 py-1.5 rounded-full">
+                    Install
+                </div>
+            </button>
+          </section>
+        )}
+
         <section>
             <img 
                 src="https://res.cloudinary.com/akinaveen/image/upload/v1718153469/clc_gfqsdg.jpg" 

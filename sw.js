@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clc-ministry-cache-v1';
+const CACHE_NAME = 'clc-ministry-cache-v2';
 // This list includes essential files for the app shell to load quickly.
 const URLS_TO_CACHE = [
   './',
